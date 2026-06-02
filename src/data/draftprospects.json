@@ -1,0 +1,39 @@
+{
+  "picks": [
+    {
+      "round": 1,
+      "pick": 7,
+      "prospect": "Viggo Björck",
+      "position": "C",
+      "team": "Djurgårdens IF",
+      "league": "SHL",
+      "note": "High-skill Swedish center, played first-line minutes in SHL at age 17",
+      "otherOptions": [
+        { "name": "Alberts Šmits", "position": "LHD", "team": "EHC München", "league": "DEL" },
+        { "name": "Keaton Verhoeff", "position": "RHD", "team": "Univ. of North Dakota", "league": "NCAA" },
+        { "name": "Carson Carels", "position": "LHD", "team": "Prince George Cougars", "league": "WHL" },
+        { "name": "Daxon Rudolph", "position": "RHD", "team": "Prince Albert Raiders", "league": "WHL" }
+      ]
+    },
+    {
+      "round": 1,
+      "pick": 26,
+      "prospect": "TBD",
+      "position": "-",
+      "team": "-",
+      "league": "-",
+      "note": "Pick acquired from Tampa Bay in Bjorkstrand and Gourde trade",
+      "otherOptions": []
+    },
+    {
+      "round": 2,
+      "pick": 38,
+      "prospect": "TBD",
+      "position": "-",
+      "team": "-",
+      "league": "-",
+      "note": "",
+      "otherOptions": []
+    }
+  ]
+}

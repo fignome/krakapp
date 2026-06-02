@@ -1,0 +1,12 @@
+{
+  "UFAs": [
+    { "name": "Jaden Schwartz", "position": "LW", "age": 33 },
+    { "name": "Eeli Tolvanen", "position": "RW", "age": 27 },
+    { "name": "Bobby McMann", "position": "LW", "age": 29 },
+    { "name": "Jamie Oleksiak", "position": "LD", "age": 33 },
+    { "name": "Matt Murray", "position": "G", "age": 32 }
+  ],
+  "RFAs": [
+    { "name": "Jacob Melanson", "position": "RW", "age": 22 }
+  ]
+}
