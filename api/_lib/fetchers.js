@@ -46,7 +46,7 @@ function parseRSS(xml) {
 async function claude(apiKey, system, userMsg, maxTokens = 1500) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    signal: AbortSignal.timeout(30000),
+    signal: AbortSignal.timeout(55000),
     headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: maxTokens, system, messages: [{ role: 'user', content: userMsg }] }),
   })

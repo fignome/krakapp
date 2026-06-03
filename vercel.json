@@ -10,5 +10,13 @@
   "crons": [
     { "path": "/api/cron",         "schedule": "0 3 * * *" },
     { "path": "/api/update-cache", "schedule": "0 4 * * *" }
-  ]
+  ],
+  "functions": {
+    "api/rumors.js":                  { "maxDuration": 60 },
+    "api/news.js":                    { "maxDuration": 60 },
+    "api/lines.js":                   { "maxDuration": 60 },
+    "api/cron.js":                    { "maxDuration": 60 },
+    "api/update-cache.js":            { "maxDuration": 60 },
+    "api/gamepreview-storylines.js":  { "maxDuration": 60 }
+  }
 }
