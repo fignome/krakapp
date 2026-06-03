@@ -201,7 +201,7 @@ export default function Jerseys() {
     {
       season: '2024',
       name: 'Winter Classic',
-      note: "Worn outdoors at T-Mobile Park for the 2024 NHL Winter Classic. Cream-toned design with vintage-inspired lettering nodding to Seattle's baseball heritage.",
+      note: "Worn outdoors at T-Mobile Park for the 2024 NHL Winter Classic. Cream-toned design with vintage-inspired lettering nodding to Seattle's hockey heritage.",
       dot: 'bg-yellow-400',
     },
     {
