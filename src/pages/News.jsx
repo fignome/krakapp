@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { usePageTitle } from '../utils/usePageTitle'
 
 const CACHE_KEY = 'kraken_news_cache'
-const CACHE_TTL = 4 * 60 * 60 * 1000  // 4 hours
+const CACHE_TTL = 5 * 60 * 1000  // 5 min client-side dedup; real 8h cache is server-side (CDN)
 const COOLDOWN_SECS = 60
-const CACHE_LABEL = 'Updates every 4 hours'
+const CACHE_LABEL = 'Updates every 8 hours'
 
 const CATEGORY_STYLES = {
   'Roster':      'bg-ice/20 text-ice',

@@ -16,8 +16,13 @@ async function kvSet(key, value, opts) {
   } catch {}
 }
 
+const SERVER_CACHE_TTL = 8 * 60 * 60 // 8 hours in seconds
+
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json')
+  // CDN caches this response for 8 hours; serves stale while revalidating for 24h.
+  // Result: one Anthropic call per 8 hours globally, instant for all other users.
+  res.setHeader('Cache-Control', `s-maxage=${SERVER_CACHE_TTL}, stale-while-revalidate=86400`)
 
   const cached = await kvGet('kraken_rumors')
   if (cached) {
