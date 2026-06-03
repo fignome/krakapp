@@ -232,8 +232,10 @@ export default function Rumors() {
     fetchingRef.current = true
     setLoading(true)
     setError(null)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30000) // 30 s hard timeout
     try {
-      const res  = await fetch('/api/rumors')
+      const res  = await fetch('/api/rumors', { signal: controller.signal })
       const data = await res.json()
       if (data.error && data.rumors?.length === 0) throw new Error(data.error)
       setRumors(data.rumors ?? [])
@@ -243,8 +245,23 @@ export default function Rumors() {
       localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: now.getTime() }))
       startCooldown()
     } catch (e) {
-      setError(e.message)
+      const isTimeout = e.name === 'AbortError'
+      const msg = isTimeout ? 'Request timed out after 30 seconds' : e.message
+      // Fall back to any stale localStorage cache before showing the error
+      const stale = readCache()
+      if (stale?.data?.rumors?.length > 0) {
+        console.log('[Rumors] API failed — serving stale cache')
+        setRumors(stale.data.rumors)
+        setUpdatedAt(new Date(stale.ts))
+        setFromCache(true)
+        setError(msg) // still show the error so user knows data may be old
+      } else {
+        setError(isTimeout
+          ? 'Rumors temporarily unavailable, check back soon.'
+          : msg)
+      }
     } finally {
+      clearTimeout(timeout)
       setLoading(false)
       fetchingRef.current = false
     }
@@ -309,13 +326,15 @@ export default function Rumors() {
 
       {/* Error */}
       {error && !loading && (
-        <div className="bg-kraken/10 border border-kraken/30 rounded-xl p-6 mb-8 flex items-start gap-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-kraken shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+        <div className={`border rounded-xl p-4 mb-6 flex items-start gap-3 ${rumors.length > 0 ? 'bg-amber-500/10 border-amber-500/30' : 'bg-kraken/10 border-kraken/30'}`}>
+          <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 shrink-0 mt-0.5 ${rumors.length > 0 ? 'text-amber-400' : 'text-kraken'}`} viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           <div>
-            <p className="text-white font-semibold mb-1">Couldn't load rumors</p>
-            <p className="text-white/50 text-sm">{error}</p>
+            <p className={`font-semibold text-sm ${rumors.length > 0 ? 'text-amber-300' : 'text-white'}`}>
+              {rumors.length > 0 ? 'Showing cached results — live update failed' : 'Couldn\'t load rumors'}
+            </p>
+            <p className="text-white/40 text-xs mt-0.5">{error}</p>
           </div>
         </div>
       )}
