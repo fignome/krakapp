@@ -217,20 +217,26 @@ export default function Rumors() {
 
   const fetchRumors = useCallback(async (forceRefresh = false) => {
     if (fetchingRef.current) return
-    if (!forceRefresh) {
-      const cached = readCache()
-      if (cached && Date.now() - cached.ts < CACHE_TTL) {
-        console.log(`[Rumors] Cache hit — ${Math.round((Date.now() - cached.ts) / 60000)} min old`)
-        setRumors(cached.data.rumors)
-        setUpdatedAt(new Date(cached.ts))
-        setFromCache(true)
-        setLoading(false)
+
+    // Always show any cached data immediately — no spinner on return visits
+    const cached = readCache()
+    if (cached?.data?.rumors?.length > 0) {
+      setRumors(cached.data.rumors)
+      setUpdatedAt(new Date(cached.ts))
+      setFromCache(true)
+      setLoading(false)
+      // If cache is still fresh and not a forced refresh, stop here
+      if (!forceRefresh && Date.now() - cached.ts < CACHE_TTL) {
+        console.log(`[Rumors] Cache fresh — ${Math.round((Date.now() - cached.ts) / 60000)} min old, skipping fetch`)
         return
       }
+      console.log('[Rumors] Cache stale — refreshing in background')
     }
+
     console.log('[Rumors] API call made')
     fetchingRef.current = true
-    setLoading(true)
+    // Only show the loading spinner if we have nothing to display yet
+    if (!cached?.data?.rumors?.length) setLoading(true)
     setError(null)
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 30000) // 30 s hard timeout
