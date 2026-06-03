@@ -127,7 +127,7 @@ function parseRumorDate(dateStr) {
   return null
 }
 
-// Hybrid status: AI intent + recency guardrails.
+// Individual status: AI intent + recency guardrails.
 // Confirmed / Denied are factual — always preserved.
 // If date can't be parsed we default to Cold (safer than trusting AI).
 function resolveStatus(rumor) {
@@ -136,25 +136,57 @@ function resolveStatus(rumor) {
   if (!parsed) return 'Cold'
   const ageDays = (Date.now() - parsed.getTime()) / (1000 * 60 * 60 * 24)
 
+  // Posted today — always Hot, no exceptions
+  if (ageDays < 1) return 'Hot'
+
   if (ageDays > 30) return 'Cold'
 
   const ai = rumor.status
-  if (ai === 'Hot') {
-    return ageDays <= 7 ? 'Hot' : 'Developing'   // hot story stays hot for a week, then cools
-  }
-  if (ai === 'Developing') {
-    return ageDays <= 14 ? 'Developing' : 'Cold'  // developing fades after 2 weeks
-  }
-  // AI said Cold — bump to Developing if it broke in the last 2 days
+  if (ai === 'Hot')        return ageDays <= 7  ? 'Hot'        : 'Developing'
+  if (ai === 'Developing') return ageDays <= 14 ? 'Developing' : 'Cold'
   return ageDays <= 2 ? 'Developing' : 'Cold'
 }
 
+// Majority/contradiction rule: if one article's status is significantly
+// higher than the consensus of other recent articles it's likely a
+// contradictory outlier — downgrade it.
+function applyMajorityRule(rumors) {
+  const statuses = rumors.map(r => resolveStatus(r))
+
+  // Only consider recent articles (≤14 days) for the consensus
+  const now = Date.now()
+  const recentStatuses = rumors.map((r, i) => {
+    const d = parseRumorDate(r.date)
+    if (!d) return null
+    const ageDays = (now - d.getTime()) / (1000 * 60 * 60 * 24)
+    return ageDays <= 14 ? statuses[i] : null
+  }).filter(Boolean)
+
+  if (recentStatuses.length < 3) return statuses // not enough articles to judge
+
+  const coldCount    = recentStatuses.filter(s => s === 'Cold').length
+  const coldRatio    = coldCount / recentStatuses.length
+  const hotCount     = recentStatuses.filter(s => s === 'Hot').length
+  const hotRatio     = hotCount / recentStatuses.length
+
+  return statuses.map((s, i) => {
+    // Skip factual statuses
+    if (s === 'Confirmed' || s === 'Denied') return s
+    // Majority are Cold → lone Hot articles are likely contradictory outliers
+    if (s === 'Hot' && coldRatio > 0.6) return 'Developing'
+    // Overwhelming Cold → Developing outliers also get pulled down
+    if (s === 'Developing' && coldRatio > 0.75) return 'Cold'
+    // Majority are Hot → lone Cold articles may be contrarian, leave as Cold
+    // (being cautious is fine — we only downgrade upward outliers)
+    return s
+  })
+}
+
 // ─── Single rumor card ────────────────────────────────────────────────────────
-function RumorRow({ rumor }) {
-  const borderColor  = CATEGORY_BORDER[rumor.category] ?? '#6b7280'
-  const badgeClass   = CATEGORY_BADGE[rumor.category]  ?? CATEGORY_BADGE['Waiver']
-  const effectStatus = resolveStatus(rumor)
-  const status       = STATUS_CONFIG[effectStatus] ?? STATUS_CONFIG['Cold']
+function RumorRow({ rumor, effectStatus }) {
+  const borderColor = CATEGORY_BORDER[rumor.category] ?? '#6b7280'
+  const badgeClass  = CATEGORY_BADGE[rumor.category]  ?? CATEGORY_BADGE['Waiver']
+  const status      = STATUS_CONFIG[effectStatus] ?? STATUS_CONFIG['Cold']
   const srcColor    = sourceColor(rumor.source)
   const searchText = `${rumor.title ?? ''} ${rumor.summary ?? ''}`
   const apiPlayers = (rumor.players ?? []).filter(name => /\S+\s+\S+/.test((name ?? '').trim()))
@@ -409,7 +441,9 @@ export default function Rumors() {
         <p className="text-white/40 text-center py-16">No rumors found.</p>
       ) : (
         <div className="flex flex-col gap-4">
-          {rumors.map((r, i) => <RumorRow key={i} rumor={r} />)}
+          {applyMajorityRule(rumors).map((effectStatus, i) => (
+            <RumorRow key={i} rumor={rumors[i]} effectStatus={effectStatus} />
+          ))}
         </div>
       )}
     </div>
