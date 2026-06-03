@@ -115,11 +115,23 @@ function SkeletonRow() {
   )
 }
 
+// Rumors older than 30 days are automatically downgraded to Cold
+function resolveStatus(rumor) {
+  if (rumor.date) {
+    const parsed = new Date(rumor.date)
+    if (!isNaN(parsed) && Date.now() - parsed.getTime() > 30 * 24 * 60 * 60 * 1000) {
+      return 'Cold'
+    }
+  }
+  return rumor.status
+}
+
 // ─── Single rumor card ────────────────────────────────────────────────────────
 function RumorRow({ rumor }) {
-  const borderColor = CATEGORY_BORDER[rumor.category] ?? '#6b7280'
-  const badgeClass  = CATEGORY_BADGE[rumor.category]  ?? CATEGORY_BADGE['Waiver']
-  const status      = STATUS_CONFIG[rumor.status]      ?? STATUS_CONFIG['Cold']
+  const borderColor  = CATEGORY_BORDER[rumor.category] ?? '#6b7280'
+  const badgeClass   = CATEGORY_BADGE[rumor.category]  ?? CATEGORY_BADGE['Waiver']
+  const effectStatus = resolveStatus(rumor)
+  const status       = STATUS_CONFIG[effectStatus] ?? STATUS_CONFIG['Cold']
   const srcColor    = sourceColor(rumor.source)
   const searchText = `${rumor.title ?? ''} ${rumor.summary ?? ''}`
   const apiPlayers = (rumor.players ?? []).filter(name => /\S+\s+\S+/.test((name ?? '').trim()))
@@ -137,7 +149,7 @@ function RumorRow({ rumor }) {
             {rumor.category}
           </span>
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${status.bg} ${status.color}`}>
-            <span>{status.emoji}</span>{rumor.status}
+            <span>{status.emoji}</span>{effectStatus}
           </span>
           <span className="text-white/30 text-xs ml-auto shrink-0">{rumor.date}</span>
         </div>
