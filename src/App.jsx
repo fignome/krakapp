@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import daccordTracker from './data/daccord-tracker.json'
 import Home from './pages/Home'
 import Roster from './pages/Roster'
@@ -295,6 +296,7 @@ export default function App() {
       </footer>
 
       <BackToTop />
+      <Analytics />
     </div>
   )
 }
