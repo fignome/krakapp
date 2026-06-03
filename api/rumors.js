@@ -1,17 +1,30 @@
-import { kv } from '@vercel/kv'
 import { fetchRumors } from './_lib/fetchers.js'
+
+async function kvGet(key) {
+  try {
+    if (!process.env.KV_REST_API_URL) return null
+    const { kv } = await import('@vercel/kv')
+    return await kv.get(key)
+  } catch { return null }
+}
+
+async function kvSet(key, value, opts) {
+  try {
+    if (!process.env.KV_REST_API_URL) return
+    const { kv } = await import('@vercel/kv')
+    await kv.set(key, value, opts)
+  } catch {}
+}
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json')
 
-  // Serve from cache (populated every 4 hours by /api/cron)
-  const cached = await kv.get('kraken_rumors')
+  const cached = await kvGet('kraken_rumors')
   if (cached) {
     res.setHeader('X-Cache', 'HIT')
     return res.end(JSON.stringify(cached))
   }
 
-  // Cache miss — only happens before the first cron run or after a KV flush.
   res.setHeader('X-Cache', 'MISS')
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
@@ -19,7 +32,7 @@ export default async function handler(req, res) {
   }
   try {
     const data = await fetchRumors(apiKey)
-    await kv.set('kraken_rumors', data, { ex: 60 * 60 * 30 })
+    await kvSet('kraken_rumors', data, { ex: 60 * 60 * 30 })
     return res.end(JSON.stringify(data))
   } catch (e) {
     return res.end(JSON.stringify({ rumors: [], error: e.message }))
