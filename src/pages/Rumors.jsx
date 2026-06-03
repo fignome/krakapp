@@ -115,17 +115,26 @@ function SkeletonRow() {
   )
 }
 
-// Status is driven by recency — AI categorisation is unreliable for this.
-// Confirmed / Denied are factual states and are always preserved.
+// Hybrid status: AI intent + recency guardrails.
+// Confirmed / Denied are factual — always preserved.
 function resolveStatus(rumor) {
   if (rumor.status === 'Confirmed' || rumor.status === 'Denied') return rumor.status
-  if (!rumor.date) return 'Cold'
+  if (!rumor.date) return rumor.status ?? 'Cold'
   const parsed = new Date(rumor.date)
-  if (isNaN(parsed)) return 'Cold'
+  if (isNaN(parsed)) return rumor.status ?? 'Cold'
   const ageDays = (Date.now() - parsed.getTime()) / (1000 * 60 * 60 * 24)
-  if (ageDays <= 2)  return 'Hot'
-  if (ageDays <= 7)  return 'Developing'
-  return 'Cold'
+
+  if (ageDays > 30) return 'Cold'
+
+  const ai = rumor.status
+  if (ai === 'Hot') {
+    return ageDays <= 7 ? 'Hot' : 'Developing'   // hot story stays hot for a week, then cools
+  }
+  if (ai === 'Developing') {
+    return ageDays <= 14 ? 'Developing' : 'Cold'  // developing fades after 2 weeks
+  }
+  // AI said Cold — but if it just broke yesterday/today, bump to Developing
+  return ageDays <= 2 ? 'Developing' : 'Cold'
 }
 
 // ─── Single rumor card ────────────────────────────────────────────────────────
