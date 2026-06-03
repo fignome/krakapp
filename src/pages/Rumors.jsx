@@ -115,13 +115,25 @@ function SkeletonRow() {
   )
 }
 
+// Try to parse common AI date formats: "June 2, 2026", "June 2026", "2026-06-02"
+function parseRumorDate(dateStr) {
+  if (!dateStr) return null
+  // Try native parse first (works for ISO and "Month Day, Year")
+  let d = new Date(dateStr)
+  if (!isNaN(d)) return d
+  // Try appending current year if only "Month Day" was given e.g. "March 5"
+  d = new Date(`${dateStr}, ${new Date().getFullYear()}`)
+  if (!isNaN(d)) return d
+  return null
+}
+
 // Hybrid status: AI intent + recency guardrails.
 // Confirmed / Denied are factual — always preserved.
+// If date can't be parsed we default to Cold (safer than trusting AI).
 function resolveStatus(rumor) {
   if (rumor.status === 'Confirmed' || rumor.status === 'Denied') return rumor.status
-  if (!rumor.date) return rumor.status ?? 'Cold'
-  const parsed = new Date(rumor.date)
-  if (isNaN(parsed)) return rumor.status ?? 'Cold'
+  const parsed = parseRumorDate(rumor.date)
+  if (!parsed) return 'Cold'
   const ageDays = (Date.now() - parsed.getTime()) / (1000 * 60 * 60 * 24)
 
   if (ageDays > 30) return 'Cold'
@@ -133,7 +145,7 @@ function resolveStatus(rumor) {
   if (ai === 'Developing') {
     return ageDays <= 14 ? 'Developing' : 'Cold'  // developing fades after 2 weeks
   }
-  // AI said Cold — but if it just broke yesterday/today, bump to Developing
+  // AI said Cold — bump to Developing if it broke in the last 2 days
   return ageDays <= 2 ? 'Developing' : 'Cold'
 }
 
