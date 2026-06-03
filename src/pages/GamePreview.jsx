@@ -4,7 +4,7 @@ import draftprospects from '../data/draftprospects.json'
 import { usePageTitle } from '../utils/usePageTitle'
 
 // ─── Toggle preview mode ──────────────────────────────────────────────────────
-const MOCK_MODE = true
+const MOCK_MODE = false
 
 const DRAFT_DATE = new Date('2026-06-26T00:00:00')
 const FA_DATE    = new Date('2026-07-01T00:00:00')
