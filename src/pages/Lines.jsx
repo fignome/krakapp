@@ -2,21 +2,15 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { lookupPlayer, allRosterPlayers } from '../utils/playerLookup'
 import { usePageTitle } from '../utils/usePageTitle'
+import linesFallbackData from '../data/lines-fallback.json'
 
-const FALLBACK_LINES = {
-  fallback: true,
-  lines: [
-    { line: 1, lw: 'Jared McCann',    c: 'Matty Beniers',       rw: 'Jordan Eberle' },
-    { line: 2, lw: 'Berkly Catton',   c: 'Chandler Stephenson', rw: 'Eeli Tolvanen' },
-    { line: 3, lw: 'Jaden Schwartz',  c: 'Shane Wright',        rw: 'Kaapo Kakko' },
-    { line: 4, lw: 'Bobby McMann',    c: 'Frederick Gaudreau',  rw: 'Ryan Winterton' },
-  ],
-  pairs: [
-    { pair: 1, ld: 'Vince Dunn',    rd: 'Brandon Montour' },
-    { pair: 2, ld: 'Adam Larsson',  rd: 'Ryker Evans' },
-    { pair: 3, ld: 'Ryan Lindgren', rd: 'Joshua Mahura' },
-  ],
-  goalie: 'Joey Daccord',
+const FALLBACK_LINES = { ...linesFallbackData, fallback: true }
+
+// Returns true when the AI response has no usable forward lines
+function isIncomplete(data) {
+  if (!data?.lines?.length) return true
+  const complete = data.lines.filter(l => l.lw && l.c && l.rw)
+  return complete.length < 2
 }
 
 function PlayerCard({ name, position }) {
@@ -59,7 +53,9 @@ function PlayerCard({ name, position }) {
   )
 }
 
-function ScratchedSection({ lines }) {
+function ScratchedSection({ lines, isFallback }) {
+  // Don't show scratched for historical fallback data — we don't know who was genuinely scratched
+  if (isFallback) return null
   const allPlayers = allRosterPlayers()
   const inLineup = new Set()
 
@@ -179,12 +175,14 @@ export default function Lines() {
       .then((r) => r.json())
       .then((d) => {
         clearTimeout(timeout)
-        setData(d)
+        // If the AI returned empty or incomplete lines, use the season-end fallback
+        const resolved = isIncomplete(d) ? FALLBACK_LINES : d
+        setData(resolved)
         const now = new Date()
         setUpdatedAt(now)
         setFromCache(false)
-        if (!d.fallback) {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ data: d, ts: now.getTime() }))
+        if (!resolved.fallback) {
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ data: resolved, ts: now.getTime() }))
           console.log('[Lines] Fresh data cached')
         }
         setLoading(false)
@@ -330,7 +328,7 @@ export default function Lines() {
             </div>
           )}
 
-          <ScratchedSection lines={data} />
+          <ScratchedSection lines={data} isFallback={!!data?.fallback} />
         </>
       )}
     </div>

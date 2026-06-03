@@ -1,0 +1,15 @@
+{
+  "lines": [
+    { "line": 1, "lw": "Jared McCann",      "c": "Matty Beniers",       "rw": "Jordan Eberle" },
+    { "line": 2, "lw": "Eeli Tolvanen",     "c": "Chandler Stephenson", "rw": "Kaapo Kakko" },
+    { "line": 3, "lw": "Jaden Schwartz",    "c": "Shane Wright",        "rw": "Bobby McMann" },
+    { "line": 4, "lw": "Jani Nyman",        "c": "Frederick Gaudreau",  "rw": "Ryan Winterton" }
+  ],
+  "pairs": [
+    { "pair": 1, "ld": "Vince Dunn",    "rd": "Brandon Montour" },
+    { "pair": 2, "ld": "Adam Larsson",  "rd": "Ryker Evans" },
+    { "pair": 3, "ld": "Ryan Lindgren", "rd": "Joshua Mahura" }
+  ],
+  "goalie": "Joey Daccord",
+  "source": "Last known lines — End of 2025-26 season"
+}
