@@ -119,6 +119,7 @@ export default function PlayerDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [edgeStats, setEdgeStats] = useState(null)
+  const [nhlOnly, setNhlOnly]     = useState(true)
 
   useEffect(() => {
     async function load() {
@@ -440,7 +441,20 @@ export default function PlayerDetail() {
 
       {player.seasonTotals?.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-lg font-semibold text-white/70 uppercase tracking-wider mb-4">Career History</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-white/70 uppercase tracking-wider">Career History</h2>
+            <label className="flex items-center gap-2 cursor-pointer select-none group">
+              <span className="text-xs font-semibold text-white/50 group-hover:text-white/70 transition-colors">NHL Only</span>
+              <button
+                role="switch"
+                aria-checked={nhlOnly}
+                onClick={() => setNhlOnly(v => !v)}
+                className={`relative w-9 h-5 rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ice/60 ${nhlOnly ? 'bg-ice' : 'bg-white/15'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${nhlOnly ? 'translate-x-4' : 'translate-x-0'}`} />
+              </button>
+            </label>
+          </div>
           <div className="bg-slate rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
@@ -474,6 +488,7 @@ export default function PlayerDetail() {
               <tbody>
                 {[...player.seasonTotals]
                   .filter((s) => s.gameTypeId === 2)
+                  .filter((s) => !nhlOnly || s.leagueAbbrev === 'NHL')
                   .reverse()
                   .map((s, i) => (
                     <tr key={`${s.season}-${s.teamName?.default}-${i}`}
