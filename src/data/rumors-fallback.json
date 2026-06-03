@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Kraken Monitoring Free Agent Market Ahead of July 1 Opening",
+    "summary": "Seattle is expected to be active in free agency as the team looks to add depth up front and on the blue line. GM Ron Francis has cap space available and has been linked to several veteran forwards.",
+    "source": "The Athletic",
+    "date": "June 2025",
+    "category": "Free Agency",
+    "status": "Developing",
+    "players": [],
+    "url": ""
+  },
+  {
+    "title": "Kraken Defense Pairing Changes Possible This Offseason",
+    "summary": "Seattle may look to upgrade on the right side of the blue line. Several defensemen are expected to be available via trade as rebuilding teams look to move veterans.",
+    "source": "Sportsnet",
+    "date": "June 2025",
+    "category": "Trade",
+    "status": "Cold",
+    "players": ["Vince Dunn", "Brandon Montour"],
+    "url": ""
+  },
+  {
+    "title": "Seattle Focused on Re-Signing Restricted Free Agents Before July 1",
+    "summary": "The Kraken have several RFAs to address before free agency opens. The team is expected to prioritize keeping their young core intact while being selective about external additions.",
+    "source": "Daily Faceoff",
+    "date": "June 2025",
+    "category": "Extension",
+    "status": "Developing",
+    "players": ["Shane Wright", "Ryker Evans"],
+    "url": ""
+  }
+]

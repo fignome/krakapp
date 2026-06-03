@@ -48,7 +48,7 @@ async function claude(apiKey, system, userMsg, maxTokens = 1500) {
     method: 'POST',
     signal: AbortSignal.timeout(55000),
     headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: maxTokens, system, messages: [{ role: 'user', content: userMsg }] }),
+    body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: maxTokens, system, messages: [{ role: 'user', content: userMsg }] }),
   })
   if (!res.ok) {
     const txt = await res.text()

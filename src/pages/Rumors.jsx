@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { usePageTitle } from '../utils/usePageTitle'
 import { lookupPlayer, allRosterPlayers } from '../utils/playerLookup'
+import rumorsFallback from '../data/rumors-fallback.json'
 
 const KNOWN_KRAKEN_PLAYERS = [
   'Matty Beniers', 'Vince Dunn', 'Brandon Montour', 'Jared McCann', 'Joey Daccord',
@@ -199,10 +200,25 @@ function RumorRow({ rumor }) {
 export default function Rumors() {
   usePageTitle('Trade Rumors')
 
-  const [rumors,    setRumors]    = useState([])
-  const [loading,   setLoading]   = useState(true)
+  // Seed with static fallback or localStorage immediately — page is never blank
+  const [rumors,    setRumors]    = useState(() => {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY)
+      const parsed = raw ? JSON.parse(raw) : null
+      if (parsed?.data?.rumors?.length > 0) return parsed.data.rumors
+    } catch {}
+    return rumorsFallback
+  })
+  const [loading,   setLoading]   = useState(false) // never block on load — content already shown
   const [error,     setError]     = useState(null)
-  const [updatedAt, setUpdatedAt] = useState(null)
+  const [updatedAt, setUpdatedAt] = useState(() => {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY)
+      const parsed = raw ? JSON.parse(raw) : null
+      if (parsed?.ts) return new Date(parsed.ts)
+    } catch {}
+    return null
+  })
   const [fromCache, setFromCache] = useState(null)
   const [cooldown,  setCooldown]  = useState(0)
   const cooldownRef = useRef(null)
