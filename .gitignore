@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 
+# NHL data cache — generated at runtime via Vercel KV / scripts/updateCache.js
+# Keep the directory but not the JSON files (they are served via api/cache/* endpoints)
+public/cache/*.json
+
 # Environment variables
 .env
 .env.local
