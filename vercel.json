@@ -3,5 +3,8 @@
     { "source": "/nhl-api/(.*)", "destination": "https://api-web.nhle.com/$1" },
     { "source": "/nhl-stats/(.*)", "destination": "https://api.nhle.com/$1" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "crons": [
+    { "path": "/api/cron", "schedule": "0 */4 * * *" }
   ]
 }
