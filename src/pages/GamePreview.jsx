@@ -3,6 +3,9 @@ import freeagents from '../data/freeagents.json'
 import draftprospects from '../data/draftprospects.json'
 import { usePageTitle } from '../utils/usePageTitle'
 
+// ─── Toggle preview mode ──────────────────────────────────────────────────────
+const MOCK_MODE = true
+
 const DRAFT_DATE = new Date('2026-06-26T00:00:00')
 const FA_DATE    = new Date('2026-07-01T00:00:00')
 
@@ -594,7 +597,7 @@ export default function GamePreview() {
   const [daccord,        setDaccord] = useState(null)
 
   useEffect(() => {
-    if (import.meta.env.VITE_MOCK_MODE === 'true') {
+    if (MOCK_MODE) {
       fetch('/cache/playerstats.json')
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(data => {
@@ -651,7 +654,7 @@ export default function GamePreview() {
 
   if (loading) return <p className="text-white/50 py-20 text-center">Loading…</p>
 
-  if (import.meta.env.VITE_MOCK_MODE === 'true') return <MockGamePreview krakenPlayers={krakenPlayers} daccord={daccord} />
+  if (MOCK_MODE) return <MockGamePreview krakenPlayers={krakenPlayers} daccord={daccord} />
 
   if (!games || games.length === 0) return <OffseasonHub />
 
