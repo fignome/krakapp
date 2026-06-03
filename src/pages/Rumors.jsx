@@ -115,15 +115,17 @@ function SkeletonRow() {
   )
 }
 
-// Rumors older than 30 days are automatically downgraded to Cold
+// Status is driven by recency — AI categorisation is unreliable for this.
+// Confirmed / Denied are factual states and are always preserved.
 function resolveStatus(rumor) {
-  if (rumor.date) {
-    const parsed = new Date(rumor.date)
-    if (!isNaN(parsed) && Date.now() - parsed.getTime() > 30 * 24 * 60 * 60 * 1000) {
-      return 'Cold'
-    }
-  }
-  return rumor.status
+  if (rumor.status === 'Confirmed' || rumor.status === 'Denied') return rumor.status
+  if (!rumor.date) return 'Cold'
+  const parsed = new Date(rumor.date)
+  if (isNaN(parsed)) return 'Cold'
+  const ageDays = (Date.now() - parsed.getTime()) / (1000 * 60 * 60 * 24)
+  if (ageDays <= 2)  return 'Hot'
+  if (ageDays <= 7)  return 'Developing'
+  return 'Cold'
 }
 
 // ─── Single rumor card ────────────────────────────────────────────────────────
