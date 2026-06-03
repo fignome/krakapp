@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import freeagents from '../data/freeagents.json'
 import draftprospects from '../data/draftprospects.json'
-import previewConfig from '../data/gamepreview-config.json'
 import { usePageTitle } from '../utils/usePageTitle'
 
 const DRAFT_DATE = new Date('2026-06-26T00:00:00')
@@ -595,7 +594,7 @@ export default function GamePreview() {
   const [daccord,        setDaccord] = useState(null)
 
   useEffect(() => {
-    if (previewConfig.mockMode) {
+    if (import.meta.env.VITE_MOCK_MODE === 'true') {
       fetch('/cache/playerstats.json')
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(data => {
@@ -652,7 +651,7 @@ export default function GamePreview() {
 
   if (loading) return <p className="text-white/50 py-20 text-center">Loading…</p>
 
-  if (previewConfig.mockMode) return <MockGamePreview krakenPlayers={krakenPlayers} daccord={daccord} />
+  if (import.meta.env.VITE_MOCK_MODE === 'true') return <MockGamePreview krakenPlayers={krakenPlayers} daccord={daccord} />
 
   if (!games || games.length === 0) return <OffseasonHub />
 
